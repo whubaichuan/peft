@@ -670,6 +670,12 @@ TEST_CASES = [
         TinyLoraConfig,
         {"target_modules": ["conv1d"], "r": 2, "u": 16, "init_v_bound": 0.5},
     ),
+    (
+        "Embedding + transformers Conv1D 2 TinyLoRA",
+        "EmbConv1D",
+        TinyLoraConfig,
+        {"target_modules": ["emb"], "r": 2, "u": 16},
+    ),
     #############
     #########
     # PVERA #
@@ -1482,6 +1488,22 @@ MULTIPLE_ACTIVE_ADAPTERS_TEST_CASES = [
         PeanutConfig,
         {"target_modules": ["lin0"], "r": 2, "depth": 1, "act_fn": "relu", "init_weights": False},
         {"target_modules": ["lin1"], "r": 2, "depth": 1, "act_fn": "relu", "init_weights": False},
+    ),
+    # for TinyLoRA, use uniform init, which allows the different adapters to be sufficiently different that they don't
+    # produce identical results within allowed tolerance
+    (
+        "TinyLoRA Same",
+        "tinylora",
+        TinyLoraConfig,
+        {"target_modules": ["lin0"], "init_weights": "uniform"},
+        {"target_modules": ["lin0"], "init_weights": "uniform"},
+    ),
+    (
+        "TinyLoRA Different",
+        "tinylora",
+        TinyLoraConfig,
+        {"target_modules": ["lin0"], "init_weights": "uniform"},
+        {"target_modules": ["lin1"], "init_weights": "uniform"},
     ),
 ]
 

@@ -217,7 +217,7 @@ class PeftModel(PushToHubMixin, torch.nn.Module):
             is_main_process (`bool`, *optional*):
                 Whether the process calling this is the main process or not. Will default to `True`. Will not save the
                 checkpoint if not on the main process, which is important for multi device setups (e.g. DDP).
-            path_initial_model_for_weight_conversion (`str, *optional*`):
+            path_initial_model_for_weight_conversion (`str`, *optional*):
                 The path to the initialized adapter, which is obtained after initializing the model with
                 PiSSA/CorDA/OLoRA and before performing any training. When `path_initial_model_for_weight_conversion`
                 is not None, the difference in adapter before and after fine-tuning is calculated. This difference can
@@ -3439,19 +3439,3 @@ def get_model_status(model: torch.nn.Module) -> TunerModelStatus:
         devices=devices,
     )
     return adapter_model_status
-
-
-def __getattr__(name):
-    if name == "PEFT_TYPE_TO_MODEL_MAPPING":
-        # This is for backwards compatibility: In #2282, PEFT_TYPE_TO_MODEL_MAPPING was removed as it was redundant with
-        # PEFT_TYPE_TO_TUNER_MAPPING. However, third party code could still use this mapping, e.g.:
-        # https://github.com/AutoGPTQ/AutoGPTQ/blob/6689349625de973b9ee3016c28c11f32acf7f02c/auto_gptq/utils/peft_utils.py#L8
-        # TODO: Remove after 2026-01
-        msg = (
-            "PEFT_TYPE_TO_MODEL_MAPPING is deprecated, please use `from peft import PEFT_TYPE_TO_TUNER_MAPPING` instead. "
-            "The deprecated variable will be removed in 2026."
-        )
-        warnings.warn(msg, category=DeprecationWarning)
-        return PEFT_TYPE_TO_TUNER_MAPPING
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
