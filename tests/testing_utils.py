@@ -24,6 +24,7 @@ from datasets import load_dataset
 
 from peft import (
     AdaLoraConfig,
+    BEFTConfig,
     IA3Config,
     LNTuningConfig,
     LoraConfig,
@@ -307,6 +308,8 @@ def set_init_weights_false(config_cls, kwargs):
         kwargs["init_lora_weights"] = False
     elif config_cls == IA3Config:
         kwargs["init_ia3_weights"] = False
+    elif config_cls == BEFTConfig:
+        kwargs["init_beft_weights"] = False
     elif config_cls == TinyLoraConfig:
         kwargs["init_weights"] = "uniform"
     else:
