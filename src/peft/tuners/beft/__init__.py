@@ -20,5 +20,5 @@ from .layer import BeftLayer, Linear
 from .model import BeftModel
 
 
-__all__ = ["BeftModel", "BeftConfig", "BeftLayer", "Linear"]
+__all__ = ["BeftConfig", "BeftLayer", "BeftModel", "Linear"]
 register_peft_method(name="beft", config_cls=BeftConfig, model_cls=BeftModel, is_mixed_compatible=True)
