@@ -15,7 +15,7 @@
 from .adalora import AdaLoraConfig, AdaLoraModel
 from .adamss import AdamssConfig, AdamssModel
 from .adaption_prompt import AdaptionPromptConfig, AdaptionPromptModel
-from .beft import BeftConfig, BEFTModel
+from .beft import BeftConfig, BeftModel
 from .boft import BOFTConfig, BOFTModel
 from .c3a import C3AConfig, C3AModel
 from .cartridge import CartridgeConfig, CartridgeEncoder
@@ -76,7 +76,7 @@ __all__ = [
     "AdaptionPromptConfig",
     "AdaptionPromptModel",
     "ArrowConfig",
-    "BEFTModel",
+    "BeftModel",
     "BOFTConfig",
     "BOFTModel",
     "BdLoraConfig",
