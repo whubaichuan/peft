@@ -22,24 +22,22 @@ from peft.utils import PeftType
 
 
 @dataclass
-class BEFTConfig(PeftConfig):
+class BeftConfig(PeftConfig):
     """
-    This is the configuration class to store the configuration of a [`BEFTModel`].
+    This is the configuration class to store the configuration of a [`BeftModel`].
 
     Args:
         target_modules (`Optional[Union[List[str], str]]`):
             The names of the modules to apply the adapter to. If this is specified, only the modules with the specified
             names will be replaced. When passing a string, a regex match will be performed. When passing a list of
             strings, either an exact match will be performed or it is checked if the name of the module ends with any
-            of the passed strings. If this is not specified, modules will be chosen according to the model
+            of the passed strings. If this is specified as 'all-linear', then all linear/Conv1D modules are chosen,
+            excluding the output layer. If this is not specified, modules will be chosen according to the model
             architecture. If the architecture is not known, an error will be raised -- in this case, you should specify
             the target modules manually.
-        fan_in_fan_out (`bool`):
-            Set this to True if the layer to replace stores weight like (fan_in, fan_out). For example, gpt-2 uses
-            `Conv1D` which stores weights like (fan_in, fan_out) and hence this should be set to `True`.
         modules_to_save (`Optional[List[str]]`):
             List of modules apart from BEFT layers to be set as trainable and saved in the final checkpoint.
-        init_beft_weights (`bool`):
+        init_weights (`bool`):
             Whether to initialize the vectors in the BEFT layers, defaults to `True`. Setting this to `False` is
             discouraged.
     """
@@ -50,14 +48,11 @@ class BEFTConfig(PeftConfig):
             "help": (
                 "List of module names or regex expression of the module names to replace with BEFT."
                 "For example, ['q', 'v'] or '.*decoder.*(SelfAttention|EncDecAttention).*(q|v)$'."
+                "This can also be a wildcard 'all-linear' which matches all linear/Conv1D layers except the output layer."
                 "If not specified, modules will be chosen according to the model architecture, If the architecture is "
                 "not known, an error will be raised -- in this case, you should specify the target modules manually."
             ),
         },
-    )
-    fan_in_fan_out: bool = field(
-        default=False,
-        metadata={"help": "Set this to True if the layer to replace stores weight like (fan_in, fan_out)"},
     )
     modules_to_save: Optional[list[str]] = field(
         default=None,
@@ -67,7 +62,7 @@ class BEFTConfig(PeftConfig):
             "the final layer `classifier/score` are randomly initialized and as such need to be trainable and saved."
         },
     )
-    init_beft_weights: bool = field(
+    init_weights: bool = field(
         default=True,
         metadata={"help": "Whether to initialize the vectors in the BEFT layers."},
     )

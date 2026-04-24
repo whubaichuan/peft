@@ -15,10 +15,10 @@
 
 from peft.utils import register_peft_method
 
-from .config import BEFTConfig
-from .layer import BEFTLayer, Linear
+from .config import BeftConfig
+from .layer import BeftLayer, Linear
 from .model import BEFTModel
 
 
-__all__ = ["BEFTConfig", "BEFTLayer", "BEFTModel", "Linear"]
-register_peft_method(name="beft", config_cls=BEFTConfig, model_cls=BEFTModel, is_mixed_compatible=True)
+__all__ = ["BEFTModel", "BeftConfig", "BeftLayer", "Linear"]
+register_peft_method(name="beft", config_cls=BeftConfig, model_cls=BEFTModel, is_mixed_compatible=True)

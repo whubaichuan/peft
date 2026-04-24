@@ -13,8 +13,6 @@
 # limitations under the License.
 from __future__ import annotations
 
-import warnings
-
 import torch
 
 from peft.tuners.tuners_utils import BaseTuner, BaseTunerLayer
@@ -22,7 +20,7 @@ from peft.utils import (
     TRANSFORMERS_MODELS_TO_BEFT_TARGET_MODULES_MAPPING,
 )
 
-from .layer import BEFTLayer, Linear
+from .layer import BeftLayer, Linear
 
 
 class BEFTModel(BaseTuner):
@@ -33,7 +31,7 @@ class BEFTModel(BaseTuner):
 
     Args:
         model ([`~transformers.PreTrainedModel`]): The model to be adapted.
-        config ([`BEFTConfig`]): The configuration of the (BEFT) model.
+        config ([`BeftConfig`]): The configuration of the (BEFT) model.
         adapter_name (`str`): The name of the adapter, defaults to `"default"`.
         low_cpu_mem_usage (`bool`, `optional`, defaults to `False`):
             Create empty adapter weights on meta device. Useful to speed up the loading process.
@@ -45,9 +43,9 @@ class BEFTModel(BaseTuner):
 
         ```py
         >>> from transformers import AutoModelForSeq2SeqLM
-        >>> from peft import BEFTModel, BEFTConfig
+        >>> from peft import BEFTModel, BeftConfig
 
-        >>> config = BEFTConfig(
+        >>> config = BeftConfig(
         ...     peft_type="BEFT",
         ...     task_type="SEQ_2_SEQ_LM",
         ...     target_modules=["v"],
@@ -59,11 +57,12 @@ class BEFTModel(BaseTuner):
 
     **Attributes**:
         - **model** ([`~transformers.PreTrainedModel`]) -- The model to be adapted.
-        - **peft_config** ([`BEFTConfig`]): The configuration of the (BEFT) model.
+        - **peft_config** ([`BeftConfig`]): The configuration of the (BEFT) model.
     """
 
     prefix: str = "beft_"
-    tuner_layer_cls = BEFTLayer
+    tuner_layer_cls = BeftLayer
+    target_module_mapping = TRANSFORMERS_MODELS_TO_BEFT_TARGET_MODULES_MAPPING
 
     @staticmethod
     def _create_new_module(beft_config, adapter_name, target, **kwargs):
@@ -73,13 +72,7 @@ class BEFTModel(BaseTuner):
             target_base_layer = target
 
         if isinstance(target_base_layer, torch.nn.Linear):
-            if kwargs["fan_in_fan_out"]:
-                warnings.warn(
-                    "fan_in_fan_out is set to True but the target module is `torch.nn.Linear`. "
-                    "Setting fan_in_fan_out to False."
-                )
-                kwargs["fan_in_fan_out"] = beft_config.fan_in_fan_out = False
-            new_module = Linear(target, adapter_name, **kwargs)
+            new_module = Linear(target, adapter_name, config=beft_config, **kwargs)
         else:
             raise ValueError(
                 f"Target module {target} is not supported. Currently, only `torch.nn.Linear` is supported."
@@ -96,14 +89,13 @@ class BEFTModel(BaseTuner):
         current_key,
     ):
         kwargs = {
-            "fan_in_fan_out": beft_config.fan_in_fan_out,
-            "init_beft_weights": beft_config.init_beft_weights,
+            "init_weights": beft_config.init_weights,
         }
 
-        if isinstance(target, BEFTLayer):
+        if isinstance(target, BeftLayer):
             target.update_layer(
                 adapter_name,
-                beft_config.init_beft_weights,
+                config=beft_config,
             )
         else:
             new_module = self._create_new_module(beft_config, adapter_name, target, **kwargs)
@@ -111,13 +103,3 @@ class BEFTModel(BaseTuner):
                 # adding an additional adapter: it is not automatically trainable
                 new_module.requires_grad_(False)
             self._replace_module(parent, target_name, new_module, target)
-
-    @staticmethod
-    def _prepare_adapter_config(peft_config, model_config):
-        if peft_config.target_modules is None:
-            if model_config["model_type"] not in TRANSFORMERS_MODELS_TO_BEFT_TARGET_MODULES_MAPPING:
-                raise ValueError("Please specify `target_modules` in `peft_config`")
-            peft_config.target_modules = set(
-                TRANSFORMERS_MODELS_TO_BEFT_TARGET_MODULES_MAPPING[model_config["model_type"]]
-            )
-        return peft_config
