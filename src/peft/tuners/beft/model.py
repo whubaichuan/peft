@@ -23,7 +23,7 @@ from peft.utils import (
 from .layer import BeftLayer, Linear
 
 
-class BEFTModel(BaseTuner):
+class BeftModel(BaseTuner):
     """
     Creates a Infused Adapter by only fine-tuning the added bias terms of value projections from a pretrained
     transformers model in low-training-data regimes (BEFT). The method is described in detail in
@@ -43,7 +43,7 @@ class BEFTModel(BaseTuner):
 
         ```py
         >>> from transformers import AutoModelForSeq2SeqLM
-        >>> from peft import BEFTModel, BeftConfig
+        >>> from peft import BeftModel, BeftConfig
 
         >>> config = BeftConfig(
         ...     peft_type="BEFT",
@@ -52,7 +52,7 @@ class BEFTModel(BaseTuner):
         ... )
 
         >>> model = AutoModelForSeq2SeqLM.from_pretrained("t5-base")
-        >>> beft_model = BEFTModel(model, config, adapter_name="default")
+        >>> beft_model = BeftModel(model, config, adapter_name="default")
         ```
 
     **Attributes**:
