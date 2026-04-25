@@ -46,7 +46,7 @@ class BeftModel(BaseTuner):
         >>> from peft import BeftModel, BeftConfig
 
         >>> config = BeftConfig(
-        ...     peft_type="BEFT",
+        ...     peft_type="Beft",
         ...     task_type="SEQ_2_SEQ_LM",
         ...     target_modules=["v"],
         ... )
