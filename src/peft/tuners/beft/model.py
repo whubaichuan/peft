@@ -88,9 +88,7 @@ class BeftModel(BaseTuner):
         parent,
         current_key,
     ):
-        kwargs = {
-            "init_weights": beft_config.init_weights,
-        }
+        kwargs = {}
 
         if isinstance(target, BeftLayer):
             target.update_layer(
