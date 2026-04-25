@@ -109,7 +109,7 @@ class Linear(nn.Module, BeftLayer):
 
                     base_layer.bias.data = output_bias.to(orig_dtype)
                 else:
-                    base_layer.bias.data.copy_(base_layer.bias.data.add(beft_bias.squeeze()).to(orig_dtype))
+                    base_layer.bias.data.add_(beft_bias.squeeze()).to(orig_dtype)
 
                 self.merged_adapters.append(active_adapter)
 
