@@ -94,13 +94,18 @@ class Linear(nn.Module, BeftLayer):
                 base_layer = self.get_base_layer()
 
                 if base_layer.bias is None:
-                    raise ValueError(f"Base layer has no bias, cannot merge bias adapter {active_adapter}")
+                    base_layer.bias = torch.nn.Parameter(
+                        torch.zeros(
+                            base_layer.out_features, device=base_layer.weight.device, dtype=base_layer.weight.dtype
+                        ),
+                        requires_grad=False,
+                    )
 
                 orig_dtype = base_layer.bias.data.dtype
                 beft_bias = self.beft_bias[active_adapter].data
 
                 if safe_merge:
-                    output_bias = (base_layer.bias.data + beft_bias).clone()
+                    output_bias = (base_layer.bias.data + beft_bias.squeeze()).clone()
 
                     if not torch.isfinite(output_bias).all():
                         raise ValueError(
@@ -126,13 +131,10 @@ class Linear(nn.Module, BeftLayer):
             if active_adapter in self.beft_bias.keys():
                 base_layer = self.get_base_layer()
 
-                if base_layer.bias is None:
-                    raise ValueError(f"Base layer has no bias, cannot unmerge bias adapter {active_adapter}")
-
                 orig_dtype = base_layer.bias.data.dtype
                 # minus BEFT bias.
                 beft_bias = self.beft_bias[active_adapter].data
-                base_layer.bias.data = (base_layer.bias.data - beft_bias).to(orig_dtype)
+                base_layer.bias.data = (base_layer.bias.data - beft_bias.squeeze()).to(orig_dtype)
 
     def forward(self, x: torch.Tensor, *args: Any, **kwargs: Any) -> torch.Tensor:
         if self.disable_adapters:
@@ -142,14 +144,19 @@ class Linear(nn.Module, BeftLayer):
         elif self.merged:
             result = self.base_layer(x, *args, **kwargs)
         else:
-            beft_bias = 0
+            beft_bias = None
             for active_adapter in self.active_adapters:
                 if active_adapter not in self.beft_bias.keys():
                     continue
-                beft_bias = beft_bias + self.beft_bias[active_adapter].flatten()
+                current_bias = self.beft_bias[active_adapter].flatten()
+                if beft_bias is None:
+                    beft_bias = current_bias
+                else:
+                    beft_bias = beft_bias + current_bias
 
             result = self.base_layer(x, *args, **kwargs)
-            orig_dtype = result.dtype
-            result = (result + beft_bias).to(orig_dtype)
+            if beft_bias is not None:
+                orig_dtype = result.dtype
+                result = (result + beft_bias).to(orig_dtype)
 
         return result
