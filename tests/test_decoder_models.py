@@ -31,6 +31,7 @@ from transformers.modeling_outputs import CausalLMOutputWithPast
 
 from peft import (
     AdaLoraConfig,
+    BeftConfig,
     BOFTConfig,
     C3AConfig,
     CartridgeConfig,
@@ -94,6 +95,13 @@ ALL_CONFIGS = [
             "task_type": "CAUSAL_LM",
             "target_modules": None,
             "total_step": 1,
+        },
+    ),
+    (
+        BeftConfig,
+        {
+            "task_type": "CAUSAL_LM",
+            "target_modules": None,
         },
     ),
     (
@@ -352,6 +360,7 @@ ALL_CONFIGS = [
 
 def _skip_if_not_conv1d_supported(model_id, config_cls):
     if "GPT2LMHeadModel" in model_id and config_cls in [
+        BeftConfig,
         BOFTConfig,
         HRAConfig,
         OFTConfig,
@@ -363,7 +372,7 @@ def _skip_if_not_conv1d_supported(model_id, config_cls):
         DeloraConfig,
         PsoftConfig,
     ]:
-        pytest.skip("Skipping BOFT/HRA/OFT/Road/SHiRA/C3A/MiSS/OSF/DeLoRA/PSOFT for GPT2LMHeadModel")
+        pytest.skip("Skipping Beft/BOFT/HRA/OFT/Road/SHiRA/C3A/MiSS/OSF/DeLoRA/PSOFT for GPT2LMHeadModel")
 
 
 def _skip_alora_no_activation(config_cls, config_kwargs):
