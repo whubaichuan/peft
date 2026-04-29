@@ -94,12 +94,7 @@ class Linear(nn.Module, BeftLayer):
                 base_layer = self.get_base_layer()
 
                 if base_layer.bias is None:
-                    base_layer.bias = torch.nn.Parameter(
-                        torch.zeros(
-                            base_layer.out_features, device=base_layer.weight.device, dtype=base_layer.weight.dtype
-                        ),
-                        requires_grad=False,
-                    )
+                    raise ValueError(f"Base layer has no bias, cannot merge bias adapter {active_adapter}")
 
                 orig_dtype = base_layer.bias.data.dtype
                 beft_bias = self.beft_bias[active_adapter].data
@@ -130,6 +125,9 @@ class Linear(nn.Module, BeftLayer):
             active_adapter = self.merged_adapters.pop()
             if active_adapter in self.beft_bias.keys():
                 base_layer = self.get_base_layer()
+
+                if base_layer.bias is None:
+                    raise ValueError(f"Base layer has no bias, cannot unmerge bias adapter {active_adapter}")
 
                 orig_dtype = base_layer.bias.data.dtype
                 # minus BEFT bias.
