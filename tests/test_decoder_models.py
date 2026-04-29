@@ -387,16 +387,15 @@ def _skip_osf_disable_adapter_test(config_cls):
         )
 
 
-def beft_tests(config_cls, model_id, config_kwargs):
-    config_name = config_cls.__name__.lower()
-    if config_name != "beftconfig":
+def check_beft_config(config_cls, model_id, config_kwargs):
+    if isinstance(config_cls, BeftConfig):
         return
     elif "gptj" in model_id.lower():
         config_kwargs["target_modules"] = ["fc_out"]
     elif "llama" in model_id.lower():
-        pytest.skip("Skip tests for Llama models because of no bias term")
+        pytest.skip("Skip tests for Llama models because layers have no bias term")
     elif "gemma3" in model_id.lower():
-        pytest.skip("Skip tests for Gemma3 models because of no bias term")
+        pytest.skip("Skip tests for Gemma3 models because layers have no bias term")
     else:
         return
 
@@ -589,7 +588,7 @@ class TestDecoderModels(PeftCommonTester):
     @pytest.mark.parametrize("config_cls,config_kwargs", ALL_CONFIGS)
     def test_merge_layers(self, model_id, config_cls, config_kwargs):
         config_kwargs = set_init_weights_false(config_cls, config_kwargs)
-        beft_tests(config_cls, model_id, config_kwargs)
+        check_beft_config(config_cls, model_id, config_kwargs)
         self._test_merge_layers(model_id, config_cls, config_kwargs.copy())
 
     @pytest.mark.parametrize("model_id", PEFT_DECODER_MODELS_TO_TEST)
@@ -597,14 +596,14 @@ class TestDecoderModels(PeftCommonTester):
     def test_merge_layers_multi(self, model_id, config_cls, config_kwargs):
         _skip_if_not_conv1d_supported(model_id, config_cls)
         config_kwargs = set_init_weights_false(config_cls, config_kwargs)
-        beft_tests(config_cls, model_id, config_kwargs)
+        check_beft_config(config_cls, model_id, config_kwargs)
         self._test_merge_layers_multi(model_id, config_cls, config_kwargs.copy())
 
     @pytest.mark.parametrize("model_id", PEFT_DECODER_MODELS_TO_TEST)
     @pytest.mark.parametrize("config_cls,config_kwargs", ALL_CONFIGS)
     def test_merge_layers_nan(self, model_id, config_cls, config_kwargs):
         config_kwargs = set_init_weights_false(config_cls, config_kwargs)
-        beft_tests(config_cls, model_id, config_kwargs)
+        check_beft_config(config_cls, model_id, config_kwargs)
         self._test_merge_layers_nan(model_id, config_cls, config_kwargs.copy())
 
     @pytest.mark.parametrize("model_id", PEFT_DECODER_MODELS_TO_TEST)
@@ -640,7 +639,7 @@ class TestDecoderModels(PeftCommonTester):
     @pytest.mark.parametrize("config_cls,config_kwargs", ALL_CONFIGS)
     def test_merge_layers_fp16(self, model_id, config_cls, config_kwargs):
         config_kwargs = config_kwargs.copy()
-        beft_tests(config_cls, model_id, config_kwargs)
+        check_beft_config(config_cls, model_id, config_kwargs)
         self._test_merge_layers_fp16(model_id, config_cls, config_kwargs.copy())
 
     @pytest.mark.parametrize("model_id", PEFT_DECODER_MODELS_TO_TEST)

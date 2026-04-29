@@ -2396,15 +2396,16 @@ class TestBeftInitialization:
 
         return MLP(bias=bias).to(self.torch_device).eval()
 
-    def test_beft_merge_with_bias_success(self):
-        model = self.get_model(bias=True)
+    def test_beft_initialization_no_bias_warning(self):
+        model = self.get_model(bias=False)
         cfg = BeftConfig(target_modules=["lin0"])
-        model = get_peft_model(model, cfg)
 
-        model = model.merge_and_unload()
+        with pytest.warns(UserWarning, match="Note you cannot merge the BEFT adapter into the base layer."):
+            model = get_peft_model(model, cfg)
 
-        assert not hasattr(model.lin0, "beft_bias")
-        assert isinstance(model.lin0, nn.Linear)
+        assert model.lin0.base_layer.bias is None
+        assert "default" in model.lin0.beft_bias
+        assert model.lin0.get_base_layer().bias is None
 
     def test_beft_merge_no_bias_raises_error(self):
         model = self.get_model(bias=False)
