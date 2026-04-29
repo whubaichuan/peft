@@ -8,7 +8,7 @@
   "peft_version": "0.19.2.dev0@UNKNOWN",
   "revision": null,
   "target_modules": [
-    "v"
+    "v_proj"
   ],
   "task_type": null
 }

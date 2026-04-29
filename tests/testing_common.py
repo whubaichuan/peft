@@ -624,10 +624,6 @@ class PeftCommonTester:
             logits_transformers = transformers_model(**dummy_input)[0]
             assert not torch.allclose(logits_merged, logits_transformers, atol=1e-10, rtol=1e-10)
 
-            # BEFT's merged bias are conflict with the save-load-roundtrip when the config has bias=False, so skipping the test below for BEFT.
-            if config.peft_type == "BEFT":
-                return
-
             # test that the logits are identical after a save-load-roundtrip
             if hasattr(model, "save_pretrained"):
                 # model is a transformers model

@@ -9,32 +9,6 @@ Fine-tuning the bias terms of large language models (LLMs) has the potential to 
 You can try target_modules=`["v"]`, or `["q"]`, or `["k"]` in `beft_finetuning.py` to see the downstream accuracy.
 
 
-## Current Support Models and The Default Target Modules
-
-```python
-TRANSFORMERS_MODELS_TO_BEFT_TARGET_MODULES_MAPPING = {
-    "t5": ["v"],
-    "mt5": ["v"],
-    "roberta": ["value"],
-    "opt": ["v_proj"],
-    "gptj": ["v_proj"],
-    "gpt_neo": ["v_proj"],
-    "bart": ["v_proj"],
-    "llama": ["v_proj"],
-    "llama4": ["v_proj"],
-    "mistral": ["v_proj"],
-    "mixtral": ["v_proj"],
-    "bert": ["value"],
-    "deberta-v2": ["value_proj"],
-    "phi": ["v_proj"],
-    "gemma": ["v_proj"],
-    "gemma2": ["v_proj"],
-    "gemma3_text": ["v_proj"],
-    "qwen2": ["v_proj"],
-    "qwen3": ["v_proj"],
-}
-```
-
 ## Citation
 ```bibtex
 @inproceedings{huang2026beft,

@@ -16,18 +16,17 @@ rendered properly in your Markdown viewer.
 
 # BEFT: Bias-Efficient Fine-Tuning of Language Models in Low-Data Regimes
 
-[BEFT](https://arxiv.org/abs/2509.15974) finds that only fine-tuning the added bias terms of value projections from a pretrained transformers model, 
-generally leads to higher downstream performance in low-data regimes, in comparison to fine-tuning the added bias terms of query/key projections.
+[BEFT](https://arxiv.org/abs/2509.15974) is a parameter efficient fine-tuning algorithm (PEFT) that only fine-tunes the added bias terms of value projections from pretrained transformer models. BEFT demonstrates that fine-tuning the added bias terms of value projections from pretrained transformers generally leads to a higher downstream performance in low-data regimes than fine-tuning the added bias terms of query/key projections.
 
 BEFT currently has the following tradeoffs:
 
 Pros:
-- BEFT requires much more fewer parameters than LoRA, while maintaining competitive or superior performance across tasks in low-data regimes. 
+- BEFT requires far fewer parameters than LoRA, while maintaining competitive or superior performance across tasks in low-data regimes. 
 
 Cons:
-- The expressiveness of BEFT might be limited in large-data regimes, compared to LoRA and full-parameters fine-tuning.
+- In high-data regimes, BEFT may show limited effectiveness compared to LoRA and full-parameters fine-tuning.
 
-If these tradeoffs do not fit your use case, consider other PEFT methods such as LoRA.
+If your use case belongs to the high-data regime, consider other PEFT methods such as LoRA.
 
 The abstract from the paper is:
 
